@@ -110,6 +110,7 @@ export const upload = async (
         return uploadedYTLink
     } catch (err) {
         messageTransport.error(err);
+        console.log('take screenshot')
         await page.screenshot({
             path: 'public/screenshot/' + new Date().getTime() +'.png' 
         })
@@ -1080,7 +1081,6 @@ async function changeLoginPageLangIfNeeded(localPage: Page) {
 }
 
 async function changeHomePageLangIfNeeded(localPage: Page) {
-    return
     await localPage.goto(homePageURL)
 
     const avatarButtonSelector = 'button#avatar-btn'
