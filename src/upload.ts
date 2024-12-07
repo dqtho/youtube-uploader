@@ -1087,6 +1087,9 @@ async function changeHomePageLangIfNeeded(localPage: Page) {
     try {
         await localPage.waitForSelector(avatarButtonSelector)
     } catch (e: any) {
+        await localPage.screenshot({
+            path: 'public/screenshot/' + new Date().getTime() + '.png'
+        })
         throw new Error('Avatar/Profile picture button not found : ' + e.name)
     }
 
