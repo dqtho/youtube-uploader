@@ -1142,6 +1142,15 @@ async function launchBrowser(puppeteerLaunch?: PuppeteerNodeLaunchOptions, loadC
     browser = await puppeteer.launch(puppeteerLaunch)
     page = await browser.newPage()
     await page.setDefaultTimeout(timeout)
+    if (puppeteerLaunch && puppeteerLaunch.args) {
+        const proxyAuth = puppeteerLaunch.args.find(arg => arg.startsWith('--proxy-auth='));
+        if (proxyAuth) {
+            const [username, password] = proxyAuth.replace('--proxy-auth=', '').split(':');
+            if (username && password) {
+                await page.authenticate({ username, password });
+            }
+        }
+    }
 
     if (loadCookies) {
         const previousSession = fs.existsSync(cookiesFilePath)
