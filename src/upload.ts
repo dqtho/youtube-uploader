@@ -155,6 +155,15 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     const saveCloseBtnXPath = '//*[@aria-label="Save and close"]/tp-yt-iron-icon'
     const createBtnXPath = '//*[@id="create-icon"]/tp-yt-iron-icon'
     const addVideoBtnXPath = '//*[@id="text-item-0"]/ytcp-ve/div/div/yt-formatted-string'
+    const interval = setInterval(async () => {
+        const selectFilesButtonXPath = '//*[@id="select-files-button"]/ytcp-button-shape/button/yt-touch-feedback-shape/div/div[2]'
+        if (await page.waitForXPath(selectFilesButtonXPath, {timeout: 5000}).catch(() => null)) {
+            clearInterval(interval);
+            console.log('clear interval')
+        }else {
+            await page.reload()
+        }
+    }, 5000);
     if (await page.waitForXPath(createBtnXPath, { timeout: 5000 }).catch(() => null)) {
         const createBtn = await page.$x(createBtnXPath)
         await createBtn[0].click()
