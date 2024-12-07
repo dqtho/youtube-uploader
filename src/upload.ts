@@ -110,6 +110,9 @@ export const upload = async (
         return uploadedYTLink
     } catch (err) {
         messageTransport.error(err);
+        await page.screenshot({
+            path: 'public/screenshot/' + new Date().getTime() +'.png' 
+        })
         if (browser) await browser.close()
 
         throw err
