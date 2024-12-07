@@ -9,7 +9,7 @@ import {
     GameData
 } from './types'
 import puppeteer from 'puppeteer-extra'
-import { PuppeteerNodeLaunchOptions, Browser, Page } from 'puppeteer'
+import { LaunchOptions, Browser, Page } from 'puppeteer-core'
 import fs from 'fs-extra'
 import path from 'path'
 
@@ -51,7 +51,7 @@ let lastSelectedChannel = ''
 export const upload = async (
     credentials: Credentials,
     videos: Video[],
-    puppeteerLaunch?: PuppeteerNodeLaunchOptions,
+    puppeteerLaunch?: LaunchOptions,
     messageTransport: MessageTransport = defaultMessageTransport
 ) => {
     cookiesDirPath = path.join('.', 'yt-auth')
@@ -587,7 +587,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
 export const update = async (
     credentials: Credentials,
     videos: VideoToEdit[],
-    puppeteerLaunch?: PuppeteerNodeLaunchOptions,
+    puppeteerLaunch?: LaunchOptions,
     messageTransport: MessageTransport = defaultMessageTransport
 ) => {
     cookiesDirPath = path.join('.', 'yt-auth')
@@ -620,7 +620,7 @@ export const update = async (
 export const comment = async (
     credentials: Credentials,
     comments: Comment[],
-    puppeteerLaunch?: PuppeteerNodeLaunchOptions,
+    puppeteerLaunch?: LaunchOptions,
     messageTransport: MessageTransport = defaultMessageTransport
 ) => {
     cookiesDirPath = path.join('.', 'yt-auth')
@@ -1154,12 +1154,12 @@ async function changeHomePageLangIfNeeded(localPage: Page) {
     await changeHomePageLangIfNeeded(localPage)
 }
 
-async function launchBrowser(puppeteerLaunch?: PuppeteerNodeLaunchOptions, loadCookies: boolean = true) {
-    browser = await puppeteer.launch(puppeteerLaunch)
+async function launchBrowser(puppeteerLaunch?: any, loadCookies: boolean = true) {
+    browser = (await puppeteer.launch(puppeteerLaunch)) as any
     page = await browser.newPage()
     await page.setDefaultTimeout(timeout)
     if (puppeteerLaunch && puppeteerLaunch.args) {
-        const proxyAuth = puppeteerLaunch.args.find((arg) => arg.startsWith('--proxy-auth='))
+        const proxyAuth = puppeteerLaunch.args.find((arg: any) => arg.startsWith('--proxy-auth='))
         if (proxyAuth) {
             const [username, password] = proxyAuth.replace('--proxy-auth=', '').split(':')
             if (username && password) {
