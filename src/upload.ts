@@ -171,11 +171,11 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
         }
     }, 5000)
     if (await page.waitForSelector('xpath/' + createBtnXPath, { timeout: 5000 }).catch(() => null)) {
-        const createBtn = await (page as any).$x(createBtnXPath)
+        const createBtn = await page.$$(createBtnXPath)
         await createBtn[0].click()
     }
     if (await page.waitForSelector('xpath/' + addVideoBtnXPath, { timeout: 5000 }).catch(() => null)) {
-        const addVideoBtn = await (page as any).$x(addVideoBtnXPath)
+        const addVideoBtn = await page.$$(addVideoBtnXPath)
         await addVideoBtn[0].click()
     }
     for (let i = 0; i < 2; i++) {
@@ -194,12 +194,12 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
         }
     }
     // Remove hidden closebtn text
-    const closeBtn = await (page as any).$x(closeBtnXPath)
+    const closeBtn = await page.$$(closeBtnXPath)
     await page.evaluate((el) => {
         el.textContent = 'oldclosse'
     }, closeBtn[0])
 
-    const selectBtn = await (page as any).$x(selectBtnXPath)
+    const selectBtn = await page.$$(selectBtnXPath)
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
         selectBtn[0].click() // button that triggers file selection
@@ -285,7 +285,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     if (thumb) {
         let thumbnailChooserXpath = xpathTextSelector('upload thumbnail')
         await page.waitForSelector('xpath/' + thumbnailChooserXpath)
-        const thumbBtn = await (page as any).$x(thumbnailChooserXpath)
+        const thumbBtn = await page.$$(thumbnailChooserXpath)
         const [thumbChooser] = await Promise.all([
             page.waitForFileChooser(),
             thumbBtn[0].click() // button that triggers file selection
@@ -293,7 +293,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
         await thumbChooser.accept([thumb])
     }
     await page.waitForFunction('document.querySelectorAll(\'[id="textbox"]\').length > 1')
-    const textBoxes = await (page as any).$x('//*[@id="textbox"]')
+    const textBoxes = await page.$$('//*[@id="textbox"]')
     await page.bringToFront()
     // Add the title value
     await textBoxes[0].focus()
@@ -307,21 +307,21 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
 
     messageTransport.debug(`  >> ${videoJSON.title} - Title and description set`)
 
-    const childOption = await (page as any).$x('//*[contains(text(),"No, it\'s")]')
+    const childOption = await page.$$('//*[contains(text(),"No, it\'s")]')
     await childOption[0].click()
 
     // There is no reason for this to be called. Also you should be using #toggle-button not going by the text...
-    // const moreOption = await (page as any).$x("//*[normalize-space(text())='Show more']")
+    // const moreOption = await (page).$$("//*[normalize-space(text())='Show more']")
     // await moreOption[0]?.click()
 
-    const playlist = await (page as any).$x("//*[normalize-space(text())='Select']")
+    const playlist = await page.$$("//*[normalize-space(text())='Select']")
     let createplaylistdone
     if (playlistName) {
         let playlistSet = false
         // Selecting playlist
         for (let i = 0; i < 2; i++) {
             try {
-                await page.evaluate((el) => el.click(), playlist[0])
+                await page.evaluate((el: any) => el.click(), playlist[0])
                 // Type the playlist name to filter out
                 await page.waitForSelector('#search-input')
                 await page.focus(`#search-input`)
@@ -330,30 +330,30 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
                 const escapedPlaylistName = escapeQuotesForXPath(playlistName)
                 const playlistToSelectXPath = '//*[normalize-space(text())=' + escapedPlaylistName + ']'
                 await page.waitForSelector('xpath/' + playlistToSelectXPath, { timeout: 10000 })
-                const playlistNameSelector = await (page as any).$x(playlistToSelectXPath)
-                await page.evaluate((el) => el.click(), playlistNameSelector[0])
-                createplaylistdone = await (page as any).$x("//*[normalize-space(text())='Done']")
-                await page.evaluate((el) => el.click(), createplaylistdone[0])
+                const playlistNameSelector = await page.$$(playlistToSelectXPath)
+                await page.evaluate((el: any) => el.click(), playlistNameSelector[0])
+                createplaylistdone = await page.$$("//*[normalize-space(text())='Done']")
+                await page.evaluate((el: any) => el.click(), createplaylistdone[0])
                 playlistSet = true
                 break
             } catch (error) {
                 messageTransport.log(`  >> ${videoJSON.title} - ${playlistName} not found. Creating...`)
                 // Creating new playlist
                 // click on playlist dropdown
-                await page.evaluate((el) => el.click(), playlist[0])
+                await page.evaluate((el: any) => el.click(), playlist[0])
                 // click New playlist button
                 const newPlaylistXPath =
                     "//*[normalize-space(text())='New playlist'] | //*[normalize-space(text())='Create playlist']"
                 await page.waitForSelector('xpath/' + newPlaylistXPath)
-                const createplaylist = await (page as any).$x(newPlaylistXPath)
-                await page.evaluate((el) => el.click(), createplaylist[0])
+                const createplaylist = await page.$$(newPlaylistXPath)
+                await page.evaluate((el: any) => el.click(), createplaylist[0])
                 // Enter new playlist name
                 await page.keyboard.type(' ' + playlistName.substring(0, 148))
                 // click create & then done button
-                const createplaylistbtn = await (page as any).$x("//*[normalize-space(text())='Create']")
-                await page.evaluate((el) => el.click(), createplaylistbtn[1])
-                createplaylistdone = await (page as any).$x("//*[normalize-space(text())='Done']")
-                await page.evaluate((el) => el.click(), createplaylistdone[0])
+                const createplaylistbtn = await page.$$("//*[normalize-space(text())='Create']")
+                await page.evaluate((el: any) => el.click(), createplaylistbtn[1])
+                createplaylistdone = await page.$$("//*[normalize-space(text())='Done']")
+                await page.evaluate((el: any) => el.click(), createplaylistdone[0])
                 playlistSet = true
             }
         }
@@ -375,7 +375,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     // await page.waitForSelector('xpath/' +'//ytcp-badge[contains(@class,"draft-badge")]//div[contains(text(),"Saved as private")]', { timeout: 0})
 
     // await page.click("#toggle-button")
-    // Was having issues because of await (page as any).$x("//*[normalize-space(text())='Show more']").click(), so I started messing with the line above.
+    // Was having issues because of await (page).$$("//*[normalize-space(text())='Show more']").click(), so I started messing with the line above.
     // The issue was obviously not the line above but I either way created code to ensure that Show more has been pressed before proceeding.
     let showMoreButton = await page.$('#toggle-button')
     if (showMoreButton == undefined) throw `uploadVideo - Toggle button not found.`
@@ -406,15 +406,15 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     }
     // Selecting video language
     if (videoLang) {
-        const langHandler = await (page as any).$x("//*[normalize-space(text())='Video language']")
-        await page.evaluate((el) => el.click(), langHandler[0])
+        const langHandler = await page.$$("//*[normalize-space(text())='Video language']")
+        await page.evaluate((el: any) => el.click(), langHandler[0])
         // translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')
-        const langName = await (page as any).$x(
+        const langName = await page.$$(
             '//*[normalize-space(translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz"))=\'' +
                 videoLang.toLowerCase() +
                 "']"
         )
-        await page.evaluate((el) => el.click(), langName[langName.length - 1])
+        await page.evaluate((el: any) => el.click(), langName[langName.length - 1])
         messageTransport.debug(`  >> ${videoJSON.title} - Video language set to ${videoLang}`)
     }
 
@@ -432,7 +432,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     let next
 
     await page.waitForSelector('xpath/' + nextBtnXPath)
-    next = await (page as any).$x(nextBtnXPath)
+    next = await page.$$(nextBtnXPath)
     await next[0].click()
 
     if (videoJSON.isChannelMonetized) {
@@ -468,7 +468,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
             await sleep(1500)
 
             await page.waitForSelector('xpath/' + nextBtnXPath)
-            next = await (page as any).$x(nextBtnXPath)
+            next = await page.$$(nextBtnXPath)
             await next[0].click()
         } catch {}
 
@@ -500,7 +500,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
             )
 
             await page.waitForSelector('xpath/' + nextBtnXPath)
-            next = await (page as any).$x(nextBtnXPath)
+            next = await page.$$(nextBtnXPath)
             await next[0].click()
 
             await sleep(1500)
@@ -512,12 +512,12 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     await page.waitForSelector('xpath/' + nextBtnXPath)
     // click next button
     await sleep(100)
-    next = await (page as any).$x(nextBtnXPath)
+    next = await page.$$(nextBtnXPath)
     await next[0].click()
     await page.waitForSelector('xpath/' + nextBtnXPath)
     // click next button
     await sleep(100)
-    next = await (page as any).$x(nextBtnXPath)
+    next = await page.$$(nextBtnXPath)
     await next[0].click()
 
     if (videoJSON.publishType) {
@@ -550,7 +550,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
     let closeDialog
     for (let i = 0; i < 10; i++) {
         try {
-            closeDialog = await (page as any).$x(closeDialogXPath)
+            closeDialog = await page.$$(closeDialogXPath)
             await closeDialog[0].click()
             break
         } catch (error) {
@@ -667,10 +667,10 @@ const publishShortComment = async (comment: Comment) => {
     await sleep(3000)
     try {
         await page.waitForSelector('xpath/' + cmtBtnXPath)
-        const cmtBtn = await (page as any).$x(cmtBtnXPath)
+        const cmtBtn = await page.$$(cmtBtnXPath)
         await cmtBtn[0].click()
         await page.waitForSelector('xpath/' + cmtInputXPath)
-        const inputArea = await (page as any).$x(cmtInputXPath)
+        const inputArea = await page.$$(cmtInputXPath)
         await inputArea[0].focus()
         await inputArea[0].click()
         await inputArea[0].type(cmt.substring(0, 10000))
@@ -694,7 +694,7 @@ const publishComment = (comment: Comment) => {
             await scrollTillVeiw(page, `#placeholder-area`)
 
             await page.focus(`#placeholder-area`)
-            const commentBox = await (page as any).$x('//*[@id="placeholder-area"]')
+            const commentBox = await page.$$('//*[@id="placeholder-area"]')
             await commentBox[0].focus()
             await commentBox[0].click()
             await commentBox[0].type(cmt.substring(0, 10000))
@@ -703,7 +703,7 @@ const publishComment = (comment: Comment) => {
 
             if (comment.pin) {
                 // Select the comment list
-                const [commentList] = await (page as any).$x(
+                const [commentList] = await page.$$(
                     `//ytd-comments[@id="comments"]//ytd-item-section-renderer[@section-identifier="comment-item-section"]/div[@id="contents"]`
                 )
 
@@ -839,12 +839,12 @@ const updateVideoInfo = async (videoJSON: VideoToEdit, messageTransport: Message
         throw new Error('The video provided may not be yours')
     }
 
-    let edit = await (page as any).$x(editXpath)
+    let edit = await page.$$(editXpath)
     await edit[0].click()
     const titleE = '//*[@id="textbox"]'
     await page.waitForSelector('xpath/' + titleE, { timeout: 70000 })
     await page.waitForFunction('document.querySelectorAll(\'[id="textbox"]\').length > 1')
-    const textBoxes = await (page as any).$x('//*[@id="textbox"]')
+    const textBoxes = await page.$$('//*[@id="textbox"]')
     await page.bringToFront()
     // Edit the title value (if)
     await textBoxes[0].focus()
@@ -893,14 +893,14 @@ const updateVideoInfo = async (videoJSON: VideoToEdit, messageTransport: Message
         await thumbChooser.accept([thumb])
     }
     // await sleep( 10000000)
-    const playlist = await (page as any).$x(
+    const playlist = await page.$$(
         `//*[@id="basics"]/div[4]/div[3]/div[1]/ytcp-video-metadata-playlists/ytcp-text-dropdown-trigger/ytcp-dropdown-trigger/div/div[3]`
     )
     let createplaylistdone
     if (playlistName) {
         for (let i = 0; i < 2; i++) {
             try {
-                await page.evaluate((el) => el.click(), playlist[0])
+                await page.evaluate((el: any) => el.click(), playlist[0])
                 await page.waitForSelector('#search-input')
                 await page.focus(`#search-input`)
                 await page.type(`#search-input`, playlistName)
@@ -909,27 +909,27 @@ const updateVideoInfo = async (videoJSON: VideoToEdit, messageTransport: Message
                 const playlistToSelectXPath = '//*[normalize-space(text())=' + escapedPlaylistName + ']'
 
                 await page.waitForSelector('xpath/' + playlistToSelectXPath, { timeout: 10000 })
-                const playlistNameSelector = await (page as any).$x(playlistToSelectXPath)
-                await page.evaluate((el) => el.click(), playlistNameSelector[0])
-                createplaylistdone = await (page as any).$x("//*[normalize-space(text())='Done']")
-                await page.evaluate((el) => el.click(), createplaylistdone[0])
+                const playlistNameSelector = await page.$$(playlistToSelectXPath)
+                await page.evaluate((el: any) => el.click(), playlistNameSelector[0])
+                createplaylistdone = await page.$$("//*[normalize-space(text())='Done']")
+                await page.evaluate((el: any) => el.click(), createplaylistdone[0])
                 break
             } catch (error) {
-                await page.evaluate((el) => el.click(), playlist[0])
+                await page.evaluate((el: any) => el.click(), playlist[0])
                 const newPlaylistXPath =
                     "//*[normalize-space(text())='New playlist'] | //*[normalize-space(text())='Create playlist']"
                 await page.waitForSelector('xpath/' + newPlaylistXPath)
-                const createplaylist = await (page as any).$x(newPlaylistXPath)
-                await page.evaluate((el) => el.click(), createplaylist[0])
+                const createplaylist = await page.$$(newPlaylistXPath)
+                await page.evaluate((el: any) => el.click(), createplaylist[0])
                 await page.keyboard.type(' ' + playlistName.substring(0, 148))
-                const createplaylistbtn = await (page as any).$x("//*[normalize-space(text())='Create']")
-                await page.evaluate((el) => el.click(), createplaylistbtn[1])
-                createplaylistdone = await (page as any).$x("//*[normalize-space(text())='Done']")
-                await page.evaluate((el) => el.click(), createplaylistdone[0])
+                const createplaylistbtn = await page.$$("//*[normalize-space(text())='Create']")
+                await page.evaluate((el: any) => el.click(), createplaylistbtn[1])
+                createplaylistdone = await page.$$("//*[normalize-space(text())='Done']")
+                await page.evaluate((el: any) => el.click(), createplaylistdone[0])
             }
         }
     }
-    const moreOption = await (page as any).$x("//*[normalize-space(text())='Show more']")
+    const moreOption = await page.$$("//*[normalize-space(text())='Show more']")
     await moreOption[0].click()
     if (tags) {
         await page.focus(`[aria-label="Tags"]`)
@@ -941,14 +941,14 @@ const updateVideoInfo = async (videoJSON: VideoToEdit, messageTransport: Message
         await page.type(`[aria-label="Tags"]`, Rtags.join(', ').substring(0, 495) + ', ')
     }
     if (videoLang) {
-        const langHandler = await (page as any).$x("//*[normalize-space(text())='Video language']")
-        await page.evaluate((el) => el.click(), langHandler[0])
-        const langName = await (page as any).$x(
+        const langHandler = await page.$$("//*[normalize-space(text())='Video language']")
+        await page.evaluate((el: any) => el.click(), langHandler[0])
+        const langName = await page.$$(
             '//*[normalize-space(translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz"))=\'' +
                 videoLang.toLowerCase() +
                 "']"
         )
-        await page.evaluate((el) => el.click(), langName[langName.length - 1])
+        await page.evaluate((el: any) => el.click(), langName[langName.length - 1])
     }
     // Setting Game Title ( Will also set Category to gaming )
     if (gameTitleSearch) {
@@ -959,7 +959,7 @@ const updateVideoInfo = async (videoJSON: VideoToEdit, messageTransport: Message
     if (publish) {
         await page.click(`#content`)
         // await page.click(`#onRadio`);
-        const publishBtn = await (page as any).$x('//*[@id="first-container"]')
+        const publishBtn = await page.$$('//*[@id="first-container"]')
         await sleep(2000)
         // publishBtn[0].click()
         try {
@@ -1314,7 +1314,7 @@ async function securityBypass(localPage: Page, recoveryemail: string, messageTra
         const confirmRecoveryXPath = "//*[normalize-space(text())='Confirm your recovery email']"
         await localPage.waitForSelector('xpath/' + confirmRecoveryXPath)
 
-        const confirmRecoveryBtn = await (localPage as any).$x(confirmRecoveryXPath)
+        const confirmRecoveryBtn = await (localPage as any).$$(confirmRecoveryXPath)
         await localPage.evaluate((el: any) => el.click(), confirmRecoveryBtn[0])
     } catch (error) {
         messageTransport.log(error)
