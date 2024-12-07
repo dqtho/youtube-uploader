@@ -1080,6 +1080,7 @@ async function changeLoginPageLangIfNeeded(localPage: Page) {
 }
 
 async function changeHomePageLangIfNeeded(localPage: Page) {
+    return
     await localPage.goto(homePageURL)
 
     const avatarButtonSelector = 'button#avatar-btn'
