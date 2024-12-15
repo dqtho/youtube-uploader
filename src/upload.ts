@@ -575,6 +575,7 @@ async function uploadVideo(videoJSON: Video, messageTransport: MessageTransport)
             // await closeDialog[0].click()
             await page.waitForSelector('xpath/' + closeDialogXPath)
             await page.click('xpath=' + closeDialogXPath)
+            await sleep(10000)
             break
         } catch (error) {
             await sleep(5000)
@@ -1549,15 +1550,16 @@ async function selectGame(
 //     [
 //         {
 //             path: 'test.mp4',
-//             title: 'test',
-//             description: 'desc',
+//             title: 'hai con than lan con',
+//             description: 'de nhau can nhau dut duoi',
 //             isNotForKid: true,
 //             isAgeRestriction: false,
-//             channelName: 'Architectes Moqueurs'
+//             channelName: 'Architectes Moqueurs',
+//             publishType: 'PUBLIC'
 //         }
 //     ],
 //     {
 //         headless: false,
 //         executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 //     }
-// )
+// ).then(console.log)
